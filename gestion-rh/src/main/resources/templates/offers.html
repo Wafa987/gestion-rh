@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Offres - Portail RH</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-global: #f8fafc;
+            --sidebar-bg: #0f172a;
+            --sidebar-hover: #1e293b;
+            --primary-blue: #2563eb;
+            --text-dark: #0f172a;
+            --border-color: #e2e8f0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-global);
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+        }
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            min-height: 100vh;
+            color: #94a3b8;
+        }
+        .sidebar-brand {
+            font-weight: 700;
+            color: white !important;
+            letter-spacing: -0.02em;
+            font-size: 1.25rem;
+        }
+        .sidebar a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            color: white;
+            background-color: var(--sidebar-hover);
+        }
+        .sidebar a.active {
+            background-color: var(--primary-blue) !important;
+            color: white !important;
+        }
+        .card-custom {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+        .form-control-custom {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            padding: 8px 12px;
+        }
+        .form-control-custom:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .section-title { font-weight: 700; letter-spacing: -0.02em; }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar p-4 d-flex flex-column gap-2">
+            <div class="sidebar-brand text-center mb-4 py-2">💼 Portail Administrateur</div>
+            <hr class="text-secondary opacity-25">
+            <ul class="nav flex-column gap-2">
+                <li class="nav-item"><a th:href="@{/web/dashboard}" class="nav-link p-2.5 rounded">📊 Tableau de bord</a></li>
+                <li class="nav-item"><a th:href="@{/web/offers}" class="nav-link active p-2.5 rounded">💼 Offres d'emploi</a></li>
+                <li class="nav-item"><a th:href="@{/web/applications}" class="nav-link p-2.5 rounded">📩 Candidatures</a></li>
+                <li class="nav-item"><a th:href="@{/web/onboardings}" class="nav-link p-2.5 rounded">🚀 Onboarding</a></li>
+            </ul>
+        </div>
+        <div class="col-md-10 p-5">
+            <div th:if="${successMessage}" class="alert alert-success border-0 rounded-3 shadow-sm mb-4" th:text="${successMessage}"></div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="section-title">💼 Gestion des Offres d'Emploi (CRUD)</h2>
+                <button class="btn btn-primary btn-sm fw-semibold rounded-3 px-3 py-2" data-bs-toggle="collapse" data-bs-target="#boxFormulaire">➕ Créer une offre</button>
+            </div>
+            <div id="boxFormulaire" class="collapse card card-custom p-4 mb-4 bg-white">
+                <h5 class="fw-bold mb-3 text-secondary" id="formTitle">Publier un nouveau poste</h5>
+                <form th:action="@{/web/offers/save}" method="POST" class="d-flex flex-column gap-3">
+                    <input type="hidden" name="id" id="fieldId">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-secondary mb-1">Intitulé du poste</label>
+                            <input type="text" name="title" id="fieldTitle" class="form-control form-control-custom" required placeholder="ex: Développeur Fullstack Java">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-secondary mb-1">Ville / Localisation</label>
+                            <input type="text" name="location" id="fieldLocation" class="form-control form-control-custom" required placeholder="ex: Mulhouse">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-secondary mb-1">Salaire annuel (€)</label>
+                            <input type="number" name="salary" id="fieldSalary" class="form-control form-control-custom" required placeholder="ex: 42000">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label small fw-semibold text-secondary mb-1">Description de l'offre</label>
+                        <textarea name="description" id="fieldDescription" class="form-control form-control-custom" rows="3" required placeholder="Décrivez le profil recherché..."></textarea>
+                    </div>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-light rounded-3 px-3" data-bs-toggle="collapse" data-bs-target="#boxFormulaire">Annuler</button>
+                        <button type="submit" class="btn btn-sm btn-success rounded-3 px-4 fw-semibold">Enregistrer en Base</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card card-custom p-4 bg-white">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="border-0 text-secondary small fw-bold">Intitulé du Poste</th>
+                        <th class="border-0 text-secondary small fw-bold">Localisation</th>
+                        <th class="border-0 text-secondary small fw-bold">Salaire Annuel</th>
+                        <th class="border-0 text-secondary small fw-bold text-end">Actions Administratives</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="offer : ${offers}" class="border-bottom">
+                        <td class="fw-bold text-dark py-3" th:text="${offer.title}">Intitulé</td>
+                        <td class="text-secondary" th:text="${offer.location}">Mulhouse</td>
+                        <td class="fw-semibold text-success" th:text="${offer.salary + ' €'}">40 000 €</td>
+                        <td class="text-end py-3">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button class="btn btn-sm btn-warning text-white fw-semibold rounded-3 px-3" th:onclick="editerOffre([[${offer.id}]], [[${offer.title}]], [[${offer.location}]], [[${offer.salary}]], [[${offer.description}]])">✏️ Modifier</button>
+                                <form th:action="@{/web/offers/delete}" method="POST" onsubmit="return confirm('Supprimer définitivement cette offre d\'emploi ?');" style="display:inline;">
+                                    <input type="hidden" name="offerId" th:value="${offer.id}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-3 px-3">🗑️ Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    function editerOffre(id, title, location, salary, description) {
+        document.getElementById('fieldId').value = id;
+        document.getElementById('fieldTitle').value = title;
+        document.getElementById('fieldLocation').value = location;
+        document.getElementById('fieldSalary').value = salary;
+        document.getElementById('fieldDescription').value = description;
+        document.getElementById('formTitle').innerText = "✏️ Modifier l'offre : " + title;
+        var collapseEl = document.getElementById('boxFormulaire');
+        var bsCollapse = new bootstrap.Collapse(collapseEl, { toggle: false });
+        bsCollapse.show();
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
